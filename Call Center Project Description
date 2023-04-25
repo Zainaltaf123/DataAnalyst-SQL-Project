@@ -1,0 +1,41 @@
+Here's a summary of the SQL code:
+-------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------Cleaning Data:-----------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------
+Separate customer_name into first_name and last_name using PARSENAME() and REPLACE() functions.
+
+Add two new columns, first_name and last_name, to Call_Center_Project..CallCenter using ALTER TABLE statement.
+
+Update the first_name and last_name columns with data from the customer_name column using UPDATE statement.
+
+Convert the call_timestamp string to a date using the CONVERT() function.
+
+Add a new column, call_timestamp_converted, to Call_Center_Project..CallCenter using ALTER TABLE statement.
+
+Update the call_timestamp_converted column with data from the call_timestamp column using UPDATE statement.
+
+Set csat_score from 0 to NULL using UPDATE statement.
+-------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------Exploring Data:----------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------
+Check the number of rows and columns in Call_Center_Project..CallCenter using SELECT COUNT(*) statements.
+
+Get the distinct values for columns sentiment, reason, channel, response_time, call_center, and state using SELECT DISTINCT statements.
+
+Calculate the count and percentage of each distinct value using SELECT COUNT(*) and ROUND() functions with GROUP BY and ORDER BY clauses.
+
+Calculate aggregations such as minimum, maximum, and average values using MIN(), MAX(), and AVG() functions.
+-------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------Aggregations:------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------
+Get the minimum, maximum, and average csat_score values using MIN(), MAX(), and AVG() functions.
+
+Get the earliest and most recent call_timestamp values using MIN() and MAX() functions.
+
+Get the minimum, maximum, and average call duration in minutes using MIN(), MAX(), and AVG() functions.
+
+Get the count of calls for each call center and response time combination using COUNT() function with GROUP BY and ORDER BY clauses.
+
+Get the average call duration in minutes for each call center and channel combination using AVG() function with GROUP BY and ORDER BY clauses.
+
+Get the count of calls for each state using COUNT() function with GROUP BY and ORDER BY clauses.

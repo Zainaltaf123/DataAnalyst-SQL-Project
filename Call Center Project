@@ -1,0 +1,218 @@
+Select *
+From Call_Center_Project..CallCenter
+order by call_timestamp
+
+-------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------- Cleaning our data -------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------
+--Separate  customer_name into first_name and last_name
+Select customer_name
+From Call_Center_Project..CallCenter
+
+Select 
+PARSENAME(REPLACE(customer_name,' ','.'),2) AS first_name,
+PARSENAME(REPLACE(customer_name,' ','.'),1) AS last_name
+From Call_Center_Project..CallCenter
+-- Adding two columns
+Alter Table Call_Center_Project..CallCenter
+Add first_name Nvarchar(255),
+	last_name Nvarchar(255);
+--updating the two columns 
+update Call_Center_Project..CallCenter
+Set first_name = PARSENAME(REPLACE(customer_name,' ','.'),2) ,
+	last_name = PARSENAME(REPLACE(customer_name,' ','.'),1) ;
+
+-- The call_timestamp is a string, so we need to convert it to a date.
+
+Select call_timestamp,FORMAT(call_timestamp, 'dd/MM/yyyy') as dates
+From Call_Center_Project..CallCenter
+-- Adding one columns
+Alter Table Call_Center_Project..CallCenter
+Add call_timestamp_converted Date;
+--updating the one columns 
+update Call_Center_Project..CallCenter
+Set call_timestamp_converted = Convert(date,call_timestamp);
+-------------------------------------------------------------------------------------------------------------------------
+--seting csat_score from 0 to Null
+Update Call_Center_Project..CallCenter
+set csat_score = NULL
+Where csat_score =0
+
+Select csat_score
+from Call_Center_Project..CallCenter
+-------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------- Exploring our data ------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------
+-- lets see the shape 0f our data-Table, i.e, the number of columns and rows
+SELECT COUNT(*) AS rows_num 
+FROM Call_Center_Project..CallCenter
+
+SELECT COUNT(*) AS cols_num 
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE table_name = 'CallCenter'
+
+-- Checking the distinct values of some columns:
+
+SELECT DISTINCT sentiment 
+FROM Call_Center_Project..CallCenter
+
+SELECT DISTINCT reason 
+FROM Call_Center_Project..CallCenter
+
+SELECT DISTINCT channel
+FROM Call_Center_Project..CallCenter
+
+SELECT DISTINCT response_time 
+FROM Call_Center_Project..CallCenter
+
+SELECT DISTINCT call_center 
+FROM Call_Center_Project..CallCenter
+
+-- The count and precentage from total of each of the distinct values we got:
+
+SELECT 
+	sentiment,
+	COUNT(*) AS count,
+	 ROUND(CAST(COUNT(*) AS FLOAT) / (SELECT COUNT(*) FROM Call_Center_Project..CallCenter) * 100, 1) AS pct
+FROM Call_Center_Project..CallCenter 
+GROUP BY sentiment
+ORDER BY pct DESC;
+
+
+SELECT 
+    reason, 
+    COUNT(*) AS count, 
+    ROUND(CAST(COUNT(*) AS FLOAT) / (SELECT COUNT(*) FROM Call_Center_Project..CallCenter) * 100, 1) AS pct
+FROM Call_Center_Project..CallCenter 
+GROUP BY reason
+ORDER BY pct DESC;
+
+
+
+
+SELECT 
+	channel,
+	count(*) as count,
+	 ROUND(CAST(COUNT(*) AS FLOAT) / (SELECT COUNT(*) FROM Call_Center_Project..CallCenter) * 100, 1) AS pct
+FROM Call_Center_Project..CallCenter 
+GROUP BY channel 
+ORDER BY pct DESC;
+
+SELECT 
+	response_time,
+	count(*) as count,
+	ROUND(CAST(COUNT(*) AS FLOAT) / (SELECT COUNT(*) FROM Call_Center_Project..CallCenter) * 100, 1) AS pct
+FROM Call_Center_Project..CallCenter 
+GROUP BY response_time
+ORDER BY pct DESC;
+
+SELECT 
+	call_center,
+	count(*) as count,
+	ROUND(CAST(COUNT(*) AS FLOAT) / (SELECT COUNT(*) FROM Call_Center_Project..CallCenter) * 100, 1) AS pct
+FROM Call_Center_Project..CallCenter 
+GROUP BY call_center
+ORDER BY pct DESC;
+
+SELECT 
+	state,
+	COUNT(*) as count
+FROM Call_Center_Project..CallCenter 
+GROUP BY state 
+ORDER BY count DESC;
+
+SELECT 
+	DISTINCT (DATENAME(WEEKDAY,call_timestamp)) as Day_of_call,
+	count (*) as num_of_calls
+FROM Call_Center_Project..CallCenter 
+GROUP BY  DATENAME(WEEKDAY, call_timestamp)
+ORDER BY num_of_calls DESC;
+
+-------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------- Aggregations  -----------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------
+SELECT 
+	MIN(csat_score) AS min_score,
+	MAX(csat_score) AS max_score,
+	ROUND(AVG(csat_score),1) AS avg_score
+FROM Call_Center_Project..CallCenter 
+WHERE csat_score != 0; 
+
+SELECT 
+	MIN(call_timestamp) AS earliest_date,
+	MAX(call_timestamp) AS most_recent 
+FROM Call_Center_Project..CallCenter;
+
+SELECT 
+	MIN([call duration in minutes]) AS min_call_duration,
+	MAX([call duration in minutes]) AS max_call_duration,
+	ROUND(AVG([call duration in minutes]),4) AS avg_call_duration
+FROM Call_Center_Project..CallCenter;
+
+SELECT 
+	call_center,
+	response_time,
+	COUNT(*) AS count
+FROM Call_Center_Project..CallCenter
+GROUP BY call_center,response_time 
+ORDER BY 1,3 DESC;
+
+SELECT 
+	call_center,
+	AVG([call duration in minutes]) as AvG_CallDuration
+FROM Call_Center_Project..CallCenter
+GROUP BY call_center
+ORDER BY 2 DESC;
+
+SELECT 
+	channel,
+	AVG([call duration in minutes]) as AvG_CallDuration
+FROM Call_Center_Project..CallCenter
+GROUP BY channel
+ORDER BY 2 DESC;
+
+SELECT 
+	state,
+	COUNT(*) as count
+FROM Call_Center_Project..CallCenter
+GROUP BY state
+ORDER BY 2 DESC;
+
+SELECT 
+	state,
+	reason,
+	COUNT(*) 
+FROM Call_Center_Project..CallCenter
+GROUP BY state,reason 
+ORDER BY 1,2,3 DESC;
+
+SELECT 
+	state,
+	sentiment ,
+	COUNT(*)
+FROM Call_Center_Project..CallCenter 
+GROUP BY state,sentiment
+ORDER BY 1,3 DESC;
+
+SELECT 
+	state,
+	AVG(csat_score) as avg_csat_score
+FROM Call_Center_Project..CallCenter
+WHERE csat_score != 0 
+GROUP BY state
+ORDER BY 2 DESC;
+
+SELECT 
+	sentiment,
+	AVG([call duration in minutes]) as AvG_CallDuration
+FROM Call_Center_Project..CallCenter 
+GROUP BY sentiment
+ORDER BY 2 DESC;
+
+-- more advanced queries.
+
+SELECT 
+	distinct call_timestamp,
+	MAX([call duration in minutes]) OVER(PARTITION BY call_timestamp) AS max_call_duration
+FROM Call_Center_Project..CallCenter 
+ORDER BY max_call_duration DESC;
